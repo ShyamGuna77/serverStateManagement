@@ -1,20 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchComments } from "../api";
 
-interface Post {
-  userId: number;
-  id: number;
-  title: string;
-  body: string;
-}
-
-interface Comment {
-  postId: number;
-  id: number;
-  name: string;
-  email: string;
-  body: string;
-}
+import {Post,Comment} from "../api"
 
 interface PostDetailProps {
   post: Post;

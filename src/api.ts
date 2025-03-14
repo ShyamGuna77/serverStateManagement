@@ -27,7 +27,7 @@ export async function fetchComments(postId: number): Promise<Comment[]> {
   return response.json();
 }
 
-export async function deletePost(postId: number): Promise<{}> {
+export async function deletePost(postId: number): Promise<object> {
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/posts/${postId}`,
     { method: "DELETE" }
