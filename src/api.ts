@@ -17,25 +17,36 @@ export async function fetchPosts(pageNum: number = 1): Promise<Post[]> {
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/posts?_limit=10&_page=${pageNum}`
   );
+  if (!response.ok) throw new Error("Failed to fetch posts");
   return response.json();
 }
 
+// api.ts - Updated version
+
 export async function fetchComments(postId: number): Promise<Comment[]> {
   const response = await fetch(
-    `https://jsonplaceholder.typicode.com/comments?postId=${postId}`
+    `https://jsonplaceholder.typicode.com/posts/${postId}/comments`
   );
   return response.json();
 }
 
-export async function deletePost(postId: number): Promise<object> {
+// This function now matches how it's called in the component
+export async function deletePost(postId: number): Promise<void> {
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/posts/${postId}`,
     { method: "DELETE" }
   );
-  return response.json();
+  if (!response.ok) {
+    throw new Error(`Failed to delete post with ID ${postId}`);
+  }
+  // No need to return response.json() as we don't use the result
 }
 
-export async function updatePost(postId: number): Promise<Post> {
+// This function now matches how it's called in the component
+export async function updatePost(
+  postId: number, 
+  data: Partial<Post>
+): Promise<Post> {
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/posts/${postId}`,
     {
@@ -43,8 +54,11 @@ export async function updatePost(postId: number): Promise<Post> {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: "REACT QUERY FOREVER!!!!" }),
+      body: JSON.stringify(data),
     }
   );
+  if (!response.ok) {
+    throw new Error(`Failed to update post with ID ${postId}`);
+  }
   return response.json();
 }

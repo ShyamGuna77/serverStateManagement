@@ -1,13 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchComments } from "../api";
-
-import {Post,Comment} from "../api"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchComments, deletePost, updatePost } from "../api";
+import { Post, Comment } from "../api";
 
 interface PostDetailProps {
   post: Post;
 }
 
 export function PostDetail({ post }: PostDetailProps) {
+  const queryClient = useQueryClient();
+
+  // Fetch comments
   const {
     data: comments,
     isLoading,
@@ -17,12 +19,56 @@ export function PostDetail({ post }: PostDetailProps) {
     queryFn: () => fetchComments(post.id),
   });
 
+  // Delete Post Mutation
+  const deleteMutation = useMutation<void, Error, number>({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting post:", error);
+    },
+  });
+
+  // Update Post Mutation
+  const updateMutation = useMutation<
+    Post,
+    Error,
+    { postId: number; data: Partial<Post> }
+  >({
+    mutationFn: ({ postId, data }) => updatePost(postId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error) => {
+      console.error("Error updating post:", error);
+    },
+  });
+
+  // Handle Post Deletion
+  const handleDelete = () => {
+    if (post?.id) {
+      deleteMutation.mutate(post.id);
+    }
+  };
+
+  // Handle Post Update
+  const handleUpdate = () => {
+    if (post?.id) {
+      updateMutation.mutate({
+        postId: post.id,
+        data: { title: "REACT QUERY FOREVER!!!!" },
+      });
+    }
+  };
+
   if (isLoading)
     return (
       <p className="text-center text-gray-500 py-8 animate-pulse">
         Loading comments...
       </p>
     );
+
   if (error)
     return (
       <p className="text-center text-red-500 py-8">Error loading comments</p>
@@ -34,6 +80,25 @@ export function PostDetail({ post }: PostDetailProps) {
         {post.title}
       </h2>
       <p className="text-gray-600 mb-6">{post.body}</p>
+
+      {/* Post actions placed here */}
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={handleDelete}
+          disabled={deleteMutation.isPending}
+          className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
+        >
+          {deleteMutation.isPending? "Deleting..." : "Delete Post"}
+        </button>
+
+        <button
+          onClick={handleUpdate}
+          disabled={updateMutation.isPending}
+          className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+        >
+          {updateMutation.isPending? "Updating..." : "Update Post"}
+        </button>
+      </div>
 
       <h3 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
         <span className="mr-2">Comments</span>
