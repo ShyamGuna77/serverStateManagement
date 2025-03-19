@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchComments, deletePost, updatePost } from "../api";
-import { Post, Comment } from "../api";
+import { fetchComments, deletePost, updatePost } from "../../api";
+import { Post,Comment } from "../../api";
 
 interface PostDetailProps {
   post: Post;
