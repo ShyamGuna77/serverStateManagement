@@ -17,32 +17,34 @@ export default function DogGallery() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery<DogProps>({
       queryKey: ["dogs"],
-      queryFn:  fetchDogs,
-      getNextPageParam: (lastPage, allPages) => allPages+1
-       
+      queryFn: fetchDogs,
+      getNextPageParam: (_, allPages) => allPages.length + 1,
     });
 
   const { ref } = useInView({
     threshold: 1.0,
     onChange: (inView) => inView && hasNextPage && fetchNextPage(),
-    triggerOnce: false,
   });
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10">
-      <h1 className="text-xl text-center m-8 p-6">Infinite Scroll</h1>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-max-6xl">
+      <h1 className="text-3xl font-bold text-gray-800 mb-5">
+        🐶 Infinite Dog Gallery
+      </h1>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full max-w-5xl px-4">
         {data?.pages.map((page, pageIndex) =>
           page.message.map((url, index) => (
             <img
               key={`${pageIndex}-${index}`}
               src={url}
-              alt="dog"
-              className="h-40 w-full object-cover hover:scale-105 shadow rounded-md"
+              alt="Dog"
+              className="w-full h-40 object-cover rounded-lg shadow-md transition-transform transform hover:scale-105"
             />
           ))
         )}
       </div>
+
       <div ref={ref} className="mt-5 text-lg font-semibold text-gray-600">
         {isFetchingNextPage
           ? "Loading more dogs... 🐾"
